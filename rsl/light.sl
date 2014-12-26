@@ -1,4 +1,5 @@
 light light(
+	float exposure = 0;
 	color lightcolor = 1 ;
 	)
 {
