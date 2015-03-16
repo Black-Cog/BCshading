@@ -41,34 +41,189 @@ diffuseIndirectComponent(
 		return gi * diffuseValue;
 	}
 	return color( 0 );
-
-		// creation of the light shader
-		// >>>>> TODO creation BCgiLight
-		// varying color out_environment_diffuse = 0;
-		// varying color out_color_bleeding = 0;
-		// varying color out_visibility = 0;
-		// color indirect_diffuse = 0;
-
-		// illuminance( "-__3dfm_gi_light", P, N, PI )
-		// {
-		// 	indirect_diffuse += trace(
-		// 								P, N,
-		// 								"raytype", "diffuse",
-		// 								"samples", 64,
-		// 								"bsdf", "cosine",
-		// 								"transmission", out_visibility,
-		// 								"maxdist", 100,
-		// 								"weight", diffuseValue,
-		// 								"environment:tint", 1,
-		// 								"environment:space", "world",
-		// 								"environment:map", "",
-		// 								"environmentcontribution", out_environment_diffuse );
-		// }
-		// out_color_bleeding = indirect_diffuse - out_environment_diffuse;
-		// color IindirectDiffuse = out_environment_diffuse + out_color_bleeding;
-		// IindirectDiffuse *= diffuseValue;
-		// return IindirectDiffuse;
 }
+
+
+color
+diffuseLoop(
+	normal Nn;
+	vector V;
+	point Pos;
+	string environnementMap;
+	varying color diffuseValue;
+	color environnementTint;
+	color environnementShadowTint;
+	float environnementRadius;
+	float environnementSample;
+	float areaSample;
+	float indirect;
+	)
+{
+	if( diffuseValue == 0 )
+	{
+		return 0;
+	}
+	else
+	{
+		color directDiffuse, indirectDiffuse, environnement, environnementUnShadow, area, areaUnshadow, result;
+
+		directDiffuse = diffuse(Nn);
+
+		illuminance( "", Pos, Nn, PI )
+		{
+			if( indirect == 0 )
+			{
+				trace( 	Pos, Nn,
+						"distribution", "cosine",
+						"samplecone", PI/2,
+						"maxdist", environnementRadius,
+						"samples", environnementSample,
+						"environmentmap", environnementMap,
+						"environmenttint", environnementTint,
+						"samplearealights", areaSample,
+						"environmentspace", "world",
+						"subset", "",
+						"environmentcontribution", environnement,
+						"unshadowedenvironment", environnementUnShadow,
+						"arealightcontribution", area,
+						"unshadowedarealight", areaUnshadow
+						);
+
+				if( environnementShadowTint == 1 )
+				{
+					result = environnementUnShadow;
+				}
+				else
+				{
+					color environnementShadow = ( environnementUnShadow - environnement ) / environnementUnShadow;
+					result = environnementUnShadow * ( 1 - environnementShadow * ( color(1) - environnementShadowTint ) );
+				}
+			}
+			else
+			{
+				indirectDiffuse = trace( 	Pos, Nn,
+											"distribution", "cosine",
+											"samplecone", PI/2,
+											"maxdist", environnementRadius,
+											"samples", environnementSample,
+											"environmentmap", environnementMap,
+											"environmenttint", environnementTint,
+											"samplearealights", areaSample,
+											"environmentspace", "world",
+											"subset", ""
+											);
+				result = indirectDiffuse;
+			}
+		}
+
+		return diffuseValue * ( directDiffuse + result );
+	}
+}
+
+color
+specularLoop(
+	normal Nn;
+	vector V;
+	point Pos;
+	string environnementMap;
+	varying color specularValue;
+	color environnementTint;
+	color environnementShadowTint;
+	float environnementRadius;
+	float environnementSample;
+	float areaSample;
+	float roughness;
+	float anisotropy;
+	float anisotropyRoation;
+	float indirect;
+	)
+{
+	if( specularValue == 0 )
+	{
+		return 0;
+	}
+	else
+	{
+		color directSpecular, indirectSpecular, environnement, environnementUnShadow, area, areaUnshadow, result;
+
+		float anisotropyValue = 1 / ( 1 - 0.75 * abs( anisotropy ) );
+		vector anisotropyUdir = anisotrpyRotation( anisotropyRoation );
+		color diffuseHit = diffuse(Nn);
+
+		illuminance( "", Pos, Nn, PI )
+		{
+			directSpecular = bsdf(  L, Nn,
+									"distribution", "ashikhmin-shirley",
+									"samplecone", PI/2,
+									"wo", V,
+									"roughness", roughness * anisotropyValue,
+									"roughnessv", roughness / anisotropyValue,
+									"udir", anisotropyUdir
+									);
+
+			// TODO check if it's right !
+			directSpecular *= diffuseHit;
+
+
+			if( indirect == 0 )
+			{
+				trace( 	Pos, Nn,
+						"distribution", "ashikhmin-shirley",
+						"samplecone", PI/2,
+						"wo", V,
+						"roughness", roughness * anisotropyValue,
+						"roughnessv", roughness / anisotropyValue,
+						"udir", anisotropyUdir,
+						"maxdist", environnementRadius,
+						"samples", environnementSample,
+						"environmentmap", environnementMap,
+						"environmenttint", environnementTint,
+						"samplearealights", areaSample,
+						"environmentspace", "world",
+						"subset", "",
+						"environmentcontribution", environnement,
+						"unshadowedenvironment", environnementUnShadow,
+						"arealightcontribution", area,
+						"unshadowedarealight", areaUnshadow
+						);
+
+				if( environnementShadowTint == 1 )
+				{
+					result = environnementUnShadow;
+				}
+				else
+				{
+					color environnementShadow = ( environnementUnShadow - environnement ) / environnementUnShadow;
+					result = environnementUnShadow * ( 1 - environnementShadow * ( color(1) - environnementShadowTint ) );
+				}
+			}
+			else
+			{
+				indirectSpecular = trace( 	Pos, Nn,
+											"distribution", "ashikhmin-shirley",
+											"samplecone", PI/2,
+											"wo", V,
+											"roughness", roughness * anisotropyValue,
+											"roughnessv", roughness / anisotropyValue,
+											"udir", anisotropyUdir,
+											"maxdist", environnementRadius,
+											"samples", environnementSample,
+											"environmentmap", environnementMap,
+											"environmenttint", environnementTint,
+											"samplearealights", areaSample,
+											"environmentspace", "world",
+											"subset", ""
+											);
+				result = indirectSpecular;
+			}
+		}
+
+		return specularValue * ( directSpecular + result );
+	}
+}
+
+
+
 
 /////////////////////////////////////////////
 ////////////////// Specular /////////////////
