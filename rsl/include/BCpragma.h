@@ -21,13 +21,20 @@ void pragma()
 	#pragma annotation diffuseDirectContribution      "label=Direct                 : ; "
 	#pragma annotation diffuseIndirectContribution    "label=Indirect               : ; "
 
+	#pragma annotation sssMix                         "label=Mix                    : ;gadgettype=floatslider;min=0;max=1;         "
+	#pragma annotation scatteringColor                "label=Scattering Color       : ; "
+	#pragma annotation absorptionColor                "label=Absorption Color       : ; "
+	#pragma annotation sssGain                        "label=Gain                   : ; "
+	#pragma annotation scatteringDepth                "label=Depth                  : ;gadgettype=floatslider;min=0;max=1;         "
+	#pragma annotation sssSamples                     "label=Samples                : ;gadgettype=intslider;min=1;max=MAX_SAMPLES; "
+	#pragma annotation sssIor                         "label=Ior                    : ;gadgettype=floatslider;min=0;max=4;         "
+
 	#pragma annotation refractionColor                "label=Refraction Color       : ; "
 	#pragma annotation refractionRoughness            "label=Roughness              : ;gadgettype=floatslider;min=0;max=1;         "
 	#pragma annotation refractionSamples              "label=Samples                : ;gadgettype=intslider;min=1;max=MAX_SAMPLES; "
 	#pragma annotation refractionIor                  "label=Ior                    : ;gadgettype=floatslider;min=0;max=4;         "
 	#pragma annotation refractionAnisotropy           "label=Anisotropy             : ;gadgettype=floatslider;min=0;max=1;         "
 	#pragma annotation refractionAnisotropyRoation    "label=Anisotropy Roation     : ;gadgettype=floatslider;min=0;max=180;       "
-
 
 	#pragma annotation specularColor                  "label=Specular Color         : ; "
 	#pragma annotation specularTexture                "label=Specular Texture       : ; "
@@ -86,6 +93,14 @@ void pragma()
 	#pragma annotation "grouping" "Diffuse/diffuseGain;"
 	#pragma annotation "grouping" "Diffuse/Contribution/diffuseDirectContribution;"
 	#pragma annotation "grouping" "Diffuse/Contribution/diffuseIndirectContribution;"
+
+	#pragma annotation "grouping" "SSS/sssMix;"
+	#pragma annotation "grouping" "SSS/scatteringColor;"
+	#pragma annotation "grouping" "SSS/absorptionColor;"
+	#pragma annotation "grouping" "SSS/sssGain;"
+	#pragma annotation "grouping" "SSS/scatteringDepth;"
+	#pragma annotation "grouping" "SSS/sssSamples;"
+	#pragma annotation "grouping" "SSS/sssIor;"
 
 
 	#pragma annotation "grouping" "Refraction/refractionColor;"
