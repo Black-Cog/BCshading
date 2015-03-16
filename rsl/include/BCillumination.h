@@ -470,144 +470,53 @@ color normalize_color(color c)
 
 color
 subsurfaceComponent(
-	varying normal Nf;
+
+	point Pos;
+	varying normal Nn;
+	vector V;
+	float samples;
+	float ior;
+	color scatteringColor;
+	color absorptionColor;
+	float scatteringDepth;
+	float scale;
 	)
 {
-	// if( diffuseValue != 0 )
-	// {
-	// 	return diffuseValue * diffuse(Nf);
-	// }
-	// return color( 0 );
+	float samplesNumber  = exposureToIntensity( samples );
+	float magicNumberSSS = 1.1;
+	color sssResult = 0;
 
-// 
-	extern point P;
-	extern normal N;
-	// color absorption = ( 0.75, 0.5, 0.5 );
-	// float sss_scale;
-	// float sss_transmittance_scale;
-	// float sss_scattering_scale;
-	// color i_sss_scattering = ( 1, 1, 1 );
-	// float i_sss_ior = 1.2;
+	uniform string raytype = "unknown";
+	rayinfo( "type", raytype );
 
-	// float i_sss_scale = 0.1;
-	// float i_sss_transmittance_scale = 0.1;
-	// float i_sss_scattering_scale = 1;
-	// string i_subsurface_type = "raytraced";
+	if( raytype == "subsurface" )
+	{
+		sssResult += magicNumberSSS * diffuse(Nn);
+	}
+	else
+	{
+		color diffuse = diffuse(Nn);
 
-	// float i_sss_samples = 16;
+		color scattering = scatteringColor * 1 / scatteringDepth;
+		color absorption = ( (1 - absorptionColor) + EPSILON ) * 1 / scatteringDepth;
 
-	// /* Absorption should be in [0,1] range, otherwise inverting will
-	//  * make a negative value. */
-	// if( max( max( absorption[0], absorption[1] ), absorption[2] ) > 1 )
-	// {
-	// 	absorption = normalize_color( absorption );
-	// }
+		sssResult += subsurface( 	Pos, Nn,
+									"type","raytrace",
+									"samples", samplesNumber,
+									"model", "grosjean",
+									"scattering", scattering,
+									"absorption", absorption,
+									"ior", ior,
+									"scale", scale,
+									"irradiance", diffuse
+									);
+	}
 
-	// /*
-	// 	clamp scale values to 1e-4.
-	// */
-	// sss_scale = i_sss_scale > 0 ? i_sss_scale : 1e-4;
-	// sss_transmittance_scale = i_sss_transmittance_scale > 0 ? i_sss_transmittance_scale : 1e-4;
-	// sss_scattering_scale = i_sss_scattering_scale > 0 ? i_sss_scattering_scale : 1e-4;
-
-	// absorption = normalize_color(1-absorption);
-	// absorption += EPSILON;
-	// absorption *= sss_transmittance_scale;
-
-	// color scattering = normalize_color( i_sss_scattering );
-	// scattering *= sss_scattering_scale;
-
-	// color sub_surface = 0 ;
-
-	// if( i_subsurface_type != "" )
-	// {
-	// 	sub_surface = subsurface(
-	// 				P, normalize(Nf), /* do not pass bump normal */
-	// 				"type", i_subsurface_type,
-	// 				"samples", i_sss_samples,
-	// 				"model", "grosjean",
-	// 				"scattering", scattering,
-	// 				"absorption", absorption,
-	// 				"ior", i_sss_ior,
-	// 				"scale", sss_scale,
-	// 				"irradiance", diffuse(Nf));
-	// }
-	// else
-	// {
-	// 	sub_surface = subsurface(
-	// 				P, normalize(Nf), /* do not pass bump normal */
-	// 				"model", "grosjean",
-	// 				"scattering", scattering,
-	// 				"absorption", absorption,
-	// 				"ior", i_sss_ior,
-	// 				"scale", sss_scale,
-	// 				"irradiance", diffuse(Nf));
-	// }
-
-	// sub_surface /= diffuse_color * coating_absorbed;
-
-	color absorption   = ( 0.6, 0.5, 0.5 );
-	color transmission = ( 0.5, 0.5, 0.5 );
-	color sub_surface;
-
-	// sub_surface = subsurface( 
-	// 				P, N,
-	// 				"type", "raytrace",
-	// 				"samples", 4,
-	// 				"model", "grosjean",
-	// 				"scattering", transmission,
-	// 				"absorption", absorption,
-	// 				"ior", 1.2,
-	// 				"scale", 0.1,
-	// 				"irradiance", 1
-	// 				);
-
-	// color diffuse = diffuse(Nf);
-	color diffuse = 0;
-	extern vector I;
-	vector V  = - normalize( I );
-	float i_diffuse_roughness = 0.5;
-
-	float arealight_samples = 16;
-		// option( "user:_3dfm_arealight_samples", arealight_samples );
-
-	color clight=0;
-	trace(
-		P, Nf,
-		"wo", V,
-		"bsdf", "oren-nayar",
-		"type", "transmission",
-		"hitsides", "reversed",
-		"samplearealights", 1,
-		"samples", arealight_samples,
-		"arealightcontribution", clight,
-		"roughness", i_diffuse_roughness );
-	diffuse += clight;
-
-
-
-
-
-
-
-
-
-
-	sub_surface = subsurface( 
-					P, N,
-					"type", "raytrace",
-					"samples", 4,
-					"model", "grosjean",
-					"scattering", transmission,
-					"absorption", absorption,
-					"ior", 1.2,
-					"scale", 0.1,
-					"irradiance", diffuse
-					);
-
-	return diffuse ;
-// 
-
+	return sssResult;
 }
+
+
+
+
 
 #endif

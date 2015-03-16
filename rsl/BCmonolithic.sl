@@ -17,6 +17,15 @@ class BCmonolithic(
 	// uniform color diffuseDirectContribution     = 1   ;
 	// uniform color diffuseIndirectContribution   = 1   ;
 
+	// init sss
+	uniform float sssMix                        = 0   ;
+	uniform color scatteringColor               = (.5, 1, 1);
+	uniform color absorptionColor               = 1   ;
+	uniform color sssGain                       = 1   ;
+	uniform float scatteringDepth               = 0.1 ;
+	uniform float sssSamples                    = 4 ;
+	uniform float sssIor                        = 1.2 ;
+
 	// init specular
 	uniform color specularColor                 = 1   ;
 	uniform string specularTexture              = ""  ;
@@ -69,6 +78,7 @@ class BCmonolithic(
 	// color specularIndirect2;
 	// init components
 	color diffuseComponent;
+	color sssComponent;
 	color specularComponent;
 	color specular1Component;
 	color specular2Component;
@@ -159,8 +169,17 @@ class BCmonolithic(
 		option( "user:specularIndirectEnable", specularIndirectEnable );
 
 
-		// Computation diffuseComponent
-		diffuseComponent = diffuseLoop( Nf, V, P, environnementMap,  diffuseValue, environnementTint, environnementShadowTint, environnementRadius, environnementSample, areaSample, diffuseIndirectEnable );
+		// Computation diffuseComponent and sss
+		if( sssMix != 1)
+		{
+			diffuseComponent = diffuseLoop( Nf, V, P, environnementMap,  diffuseValue, environnementTint, environnementShadowTint, environnementRadius, environnementSample, areaSample, diffuseIndirectEnable );
+		}
+		if( sssMix != 0)
+		{
+			// TODO : find a way for indirect lighting in sss
+			sssComponent = subsurfaceComponent( P, normalize(N), V, sssSamples, sssIor, scatteringColor, absorptionColor, scatteringDepth, 0.1 ) * sssGain;
+		}
+		diffuseComponent =  mix( diffuseComponent, sssComponent, sssMix );
 
 		// Computation specularComponent
 		if( specularMix != 1 )
