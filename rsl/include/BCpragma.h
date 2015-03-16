@@ -13,7 +13,8 @@
 
 void pragma()
 {
-	// naming and field option
+	//// naming and field option ////
+	// Surface
 	#pragma annotation diffuseColor                   "label=Diffuse Color          : ; "
 	#pragma annotation diffuseTexture                 "label=Diffuse Texture        : ; "
 	#pragma annotation diffuseGain                    "label=Diffuse Gain           : ; "
@@ -59,8 +60,27 @@ void pragma()
 	#pragma annotation bumpGain                       "label=Bump Gain              : ;gadgettype=floatslider;min=0;max=5;        "
 
 
+	// Light
+	#pragma annotation lightExposure       "label=Exposure       : ;gadgettype=floatslider;min=-20;max=20;             "
+	#pragma annotation lightConeAngle      "label=ConeAngle      : ;gadgettype=floatslider;min=0;max=360;              "
+	#pragma annotation lightPenumbraAngle  "label=PenumbraAngle  : ;gadgettype=floatslider;min=0;max=360;              "
+	#pragma annotation lightColor          "label=Color          : ; "
+	#pragma annotation lightEnvironment    "label=Environment    : ; "
+	#pragma annotation lightDecay          "label=Decay          : ;gadgettype=optionmenu:None=0:Linear=1:Quadratic=2; "
+	#pragma annotation lightShadowEnable   "label=Shadow Enable  : ;gadgettype=checkbox;                               "
+	#pragma annotation lightShadowTint     "label=Shadow Tint    : ; "
+	#pragma annotation lightRadius         "label=Radius         : ;gadgettype=floatslider;min=0;                      "
+	#pragma annotation lightSize           "label=Size           : ;gadgettype=floatslider;min=0;max=1;                "
+	#pragma annotation lightAngle          "label=Angle          : ;gadgettype=floatslider;min=0;max=180;              "
+	#pragma annotation lightSamples        "label=Samples        : ;gadgettype=intslider;min=1;max=MAX_SAMPLES;        "
+	#pragma annotation lightBias           "label=Bias           : ;gadgettype=floatslider;min=-1;max=10;              "
+	#pragma annotation __category          "label=Category       : ; "
 
-	// grouping
+
+
+
+	//// grouping ////
+	// Surface
 	#pragma annotation "grouping" "Diffuse/diffuseColor;"
 	#pragma annotation "grouping" "Diffuse/diffuseTexture;"
 	#pragma annotation "grouping" "Diffuse/diffuseGain;"
@@ -112,8 +132,32 @@ void pragma()
 	#pragma annotation "grouping" "AOVs/aov_specularDirect;"
 	#pragma annotation "grouping" "AOVs/aov_specularIndirect;"
 	#pragma annotation "grouping" "AOVs/aov_refraction;"
-}
 
+
+
+
+	// Light
+	#pragma annotation "grouping" "Basics/lightExposure;"
+	#pragma annotation "grouping" "Basics/lightConeAngle;"
+	#pragma annotation "grouping" "Basics/lightPenumbraAngle;"
+	#pragma annotation "grouping" "Basics/lightColor;"
+	#pragma annotation "grouping" "Basics/lightEnvironment;"
+	#pragma annotation "grouping" "Basics/lightDecay;"
+
+
+	#pragma annotation "grouping" "Shadow/lightShadowEnable;"
+	#pragma annotation "grouping" "Shadow/lightShadowTint;"
+	#pragma annotation "grouping" "Shadow/lightRadius;"
+	#pragma annotation "grouping" "Shadow/lightSize;"
+	#pragma annotation "grouping" "Shadow/lightAngle;"
+	#pragma annotation "grouping" "Shadow/lightSamples;"
+	#pragma annotation "grouping" "Shadow/lightBias;"
+
+
+	#pragma annotation "grouping" "Advance/__category;"
+
+
+}
 
 
 #endif

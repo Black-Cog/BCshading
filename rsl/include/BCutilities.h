@@ -9,7 +9,8 @@
 #ifndef _BCutilities_h
 #define _BCutilities_h
 
-#define EPSILON 1e-6
+#define EPSILON  1e-6
+#define INFINITE 1e10
 
 /******************************************************************************/
 /**********************************  Normal  **********************************/
@@ -74,6 +75,24 @@ normalMap(
 /******************************************************************************/
 
 float
+falloff(
+	float min;
+	float max;
+	)
+{
+	extern normal N;
+	extern vector I;
+
+	normal Nf = normalForward();
+	vector V  = - normalize( I );
+
+	float falloff = ( Nf.V ) * 1;
+
+	return mix( min, max, falloff );
+}
+
+
+float
 getFloatValue(
 	float colorValue;
 	string textureValue;
@@ -91,7 +110,7 @@ exposureToIntensity(
 	float exposure;
 	)
 {
-	float intensity = pow(exposure, 2);
+	float intensity = pow( 2, exposure );
 
 	return intensity;
 }
